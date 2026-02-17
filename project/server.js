@@ -1,8 +1,12 @@
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 const { validateKey } = require("./bladimirxyz");
 
 const app = express();
+
+// ✅ Enable CORS
+app.use(cors());
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
