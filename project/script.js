@@ -9,6 +9,9 @@
         return;
     }
 
+    let replaceCount = 0;
+    let lastPing = new Date();
+
     /* -------------------------
        CSS Injection
     -------------------------- */
@@ -20,14 +23,44 @@
             background: yellow !important;
             padding: 2px 4px;
             border-radius: 4px;
-            transition: 0.3s ease;
+        }
+
+        #hello-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 260px;
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 999999;
+            padding: 15px;
+            cursor: move;
+            user-select: none;
+        }
+
+        #hello-widget h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        #hello-widget .status {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        #hello-widget .ping {
+            color: #00ff88;
+            font-weight: bold;
         }
     `;
     document.head.appendChild(style);
 
 
     /* -------------------------
-       Text Replace with Span
+       Replace Logic
     -------------------------- */
     function replaceText(node) {
 
@@ -36,7 +69,9 @@
             if (/hello/i.test(node.nodeValue)) {
 
                 const span = document.createElement("span");
-                span.innerHTML = node.nodeValue.replace(/hello/gi, function(match) {
+
+                span.innerHTML = node.nodeValue.replace(/hello/gi, function () {
+                    replaceCount++;
                     return `<span class="hello-replaced">bye</span>`;
                 });
 
@@ -55,13 +90,51 @@
 
     function runReplace() {
         replaceText(document.body);
+        updateStats();
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", runReplace);
-    } else {
-        runReplace();
+    /* -------------------------
+       Floating Widget
+    -------------------------- */
+    const widget = document.createElement("div");
+    widget.id = "hello-widget";
+    widget.innerHTML = `
+        <h4>🚀 Hello Converter Stats</h4>
+        <div>Replacements: <b id="replace-count">0</b></div>
+        <div class="status">
+            Ping: <span class="ping" id="ping-status">ACTIVE</span>
+        </div>
+    `;
+    document.body.appendChild(widget);
+
+    function updateStats() {
+        document.getElementById("replace-count").innerText = replaceCount;
     }
+
+    /* -------------------------
+       Drag Functionality
+    -------------------------- */
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    widget.addEventListener("mousedown", function (e) {
+        isDragging = true;
+        offsetX = e.clientX - widget.getBoundingClientRect().left;
+        offsetY = e.clientY - widget.getBoundingClientRect().top;
+    });
+
+    document.addEventListener("mousemove", function (e) {
+        if (isDragging) {
+            widget.style.left = (e.clientX - offsetX) + "px";
+            widget.style.top = (e.clientY - offsetY) + "px";
+            widget.style.right = "auto";
+            widget.style.bottom = "auto";
+        }
+    });
+
+    document.addEventListener("mouseup", function () {
+        isDragging = false;
+    });
 
     /* -------------------------
        Mutation Observer
@@ -79,6 +152,20 @@
             childList: true,
             subtree: true
         });
+        runReplace();
     });
+
+    /* -------------------------
+       Ping Every 5 Seconds
+    -------------------------- */
+    setInterval(() => {
+        lastPing = new Date();
+        runReplace();
+
+        const pingEl = document.getElementById("ping-status");
+        pingEl.innerText = "ACTIVE";
+        pingEl.style.color = "#00ff88";
+
+    }, 5000);
 
 })();
