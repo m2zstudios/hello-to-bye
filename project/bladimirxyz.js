@@ -7,7 +7,7 @@ function validateKey(apiKey, domain) {
         return { valid: false };
     }
 
-    if (domain !== "alloweddomain.com") {
+    if (domain !== "https://hello-to-bye.onrender.com") {
         return { valid: false };
     }
 
