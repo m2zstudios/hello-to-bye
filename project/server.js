@@ -1,13 +1,24 @@
 const express = require("express");
 const path = require("path");
+const { validateKey } = require("./bladimirxyz");
 
 const app = express();
 
-app.get("/script.js", (req, res) => {
-    res.sendFile(path.join(__dirname, "script.js"));
+app.use("/public", express.static(path.join(__dirname, "public")));
+
+app.get("/validate", (req, res) => {
+    const { key, domain } = req.query;
+
+    const result = validateKey(key, domain);
+
+    if (!result.valid) {
+        return res.status(403).json({ success: false });
+    }
+
+    res.json({
+        success: true,
+        plan: result.plan
+    });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server running on port " + PORT);
-});
+app.listen(3000, () => console.log("Server running"));
