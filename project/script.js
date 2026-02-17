@@ -10,7 +10,6 @@
     }
 
     let replaceCount = 0;
-    let lastPing = new Date();
 
     /* -------------------------
        CSS Injection
@@ -29,7 +28,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 260px;
+            width: 270px;
             background: #111;
             color: #fff;
             font-family: Arial, sans-serif;
@@ -51,13 +50,11 @@
             margin-top: 8px;
         }
 
-        #hello-widget .ping {
-            color: #00ff88;
+        #ping-time {
             font-weight: bold;
         }
     `;
     document.head.appendChild(style);
-
 
     /* -------------------------
        Replace Logic
@@ -102,7 +99,7 @@
         <h4>🚀 Hello Converter Stats</h4>
         <div>Replacements: <b id="replace-count">0</b></div>
         <div class="status">
-            Ping: <span class="ping" id="ping-status">ACTIVE</span>
+            Ping: <span id="ping-time">-- ms</span>
         </div>
     `;
     document.body.appendChild(widget);
@@ -156,16 +153,30 @@
     });
 
     /* -------------------------
-       Ping Every 5 Seconds
+       Real Ping Measurement
     -------------------------- */
-    setInterval(() => {
-        lastPing = new Date();
-        runReplace();
+    function measurePing() {
 
-        const pingEl = document.getElementById("ping-status");
-        pingEl.innerText = "ACTIVE";
-        pingEl.style.color = "#00ff88";
+        const start = performance.now();
 
-    }, 5000);
+        runReplace(); // simulate processing work
+
+        const end = performance.now();
+        const duration = (end - start).toFixed(2);
+
+        const pingEl = document.getElementById("ping-time");
+        pingEl.innerText = duration + " ms";
+
+        // Color logic
+        if (duration < 5) {
+            pingEl.style.color = "#00ff88"; // green
+        } else if (duration < 15) {
+            pingEl.style.color = "yellow";
+        } else {
+            pingEl.style.color = "red";
+        }
+    }
+
+    setInterval(measurePing, 5000);
 
 })();
