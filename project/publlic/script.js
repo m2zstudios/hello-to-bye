@@ -7,7 +7,7 @@
     if (!apiKey) return;
 
     // 🔐 Backend Validation
-    fetch(`https://https://hello-to-bye.onrender.com/validate?key=${apiKey}&domain=${location.hostname}`)
+    fetch(`https://hello-to-bye.onrender.com/validate?key=${apiKey}&domain=${location.hostname}`)
         .then(res => {
             if (!res.ok) throw new Error("Validation failed");
             return res.json();
